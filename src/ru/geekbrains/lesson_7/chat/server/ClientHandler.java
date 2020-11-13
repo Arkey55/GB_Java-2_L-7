@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Objects;
 
 public class ClientHandler {
@@ -32,9 +34,9 @@ public class ClientHandler {
         }
     }
 
-    private void doAuth(){
+    private void doAuth() throws SocketException {
+        socket.setSoTimeout(120000);
         try {
-            socket.setSoTimeout(120000);
             while (true){
                 String str = in.readUTF();
                 if (str.startsWith("-auth")){
@@ -66,6 +68,10 @@ public class ClientHandler {
         new Thread(()->{
             try {
                 doAuth();
+            } catch (SocketException e) {
+                System.out.println("time"); //не работает =(
+            }
+            try {
                 receiveMsg();
             } catch (Exception ex){
                 throw new RuntimeException("SWW", ex);
